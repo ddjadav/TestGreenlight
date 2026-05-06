@@ -17,30 +17,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          python-version: "3.11"
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          python -m playwright install --with-deps chromium
+          mvn -B dependency:go-offline
+          mvn -B exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps chromium"
 
       - name: Run website test
-        env:
-          TEST_URL: https://qa.greenlightmedicare.co.uk
-          EXPECT_TEXT: ${{ vars.GREENLIGHT_EXPECT_TEXT }}
-          EXPECT_SELECTOR: ${{ vars.GREENLIGHT_EXPECT_SELECTOR }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: gpt-5.4-mini
         run: |
-          python run.py --device ${{ matrix.device }} --output-dir outputs/${{ matrix.device }}
+          mvn -B -Dbase.url=https://qa.greenlightmedicare.co.uk -Dexpected.text="${{ vars.GREENLIGHT_EXPECT_TEXT }}" -Dexpected.selector="${{ vars.GREENLIGHT_EXPECT_SELECTOR }}" -Ddevice=${{ matrix.device }} test
 
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: website-test-${{ matrix.device }}
-          path: outputs/${{ matrix.device }}
+          path: target/reports/${{ matrix.device }}
