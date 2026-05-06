@@ -1,118 +1,84 @@
 # TestGreenlight
 
-A Python starter project for testing `qa.greenlightmedicare.co.uk` functionality and UI with:
+A Java Playwright project for testing `qa.greenlightmedicare.co.uk` functionality and UI with:
 
 - Playwright for browser automation
-- OpenAI for AI-based UI review
-- Rule-based checks for repeatable functionality testing
+- JUnit 5 for test execution
+- GitHub Actions for free cloud runs
 
 ## What it does
 
-The agent:
+The test suite:
 
-1. Opens a website in Playwright
-2. Checks core functionality like page load and visible selectors
+1. Opens the QA site in Playwright
+2. Checks page load, expected text, and expected selectors
 3. Captures a screenshot
-4. Sends the screenshot plus page context to OpenAI for UI review
-5. Saves a JSON report with findings
+4. Detects bot-verification blocks explicitly
+5. Saves JSON and Markdown reports under `target/reports/`
 
 ## Project structure
 
 ```text
 TestGreenlight/
-  app/
-    __init__.py
-    agent.py
-    config.py
-    openai_client.py
-    report.py
-    tester.py
-  outputs/
-  .env.example
-  requirements.txt
-  run.py
+  src/test/java/com/greenlight/tests/
+  src/test/resources/
+  target/reports/
+  pom.xml
 ```
 
 ## Local setup
 
-Create a virtual environment and install dependencies:
+Prerequisites:
+
+- Java 17+
+- Maven 3.9+
+
+Install Playwright browsers:
 
 ```powershell
 cd C:\Users\DELL\Documents\TestGreenlight
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python -m playwright install
+mvn exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
 ```
 
-## Configure environment
-
-Copy `.env.example` to `.env` and add your OpenAI API key:
+Run the desktop QA test:
 
 ```powershell
-Copy-Item .env.example .env
+mvn test
 ```
 
-Example `.env`:
-
-```env
-OPENAI_API_KEY=your_api_key_here
-OPENAI_MODEL=gpt-5.4-mini
-TEST_URL=https://qa.greenlightmedicare.co.uk
-```
-
-## Run locally
-
-Basic example:
+Run the mobile QA test:
 
 ```powershell
-python run.py
-```
-
-With custom checks:
-
-```powershell
-python run.py --expect-text "Login" --expect-selector "h1"
-```
-
-Mobile viewport:
-
-```powershell
-python run.py --device mobile
+mvn -Ddevice=mobile test
 ```
 
 ## Cloud setup with GitHub Actions
 
-1. In GitHub repository settings, add these values:
+In GitHub repository settings, add these values:
 
-- Repository secret: `OPENAI_API_KEY`
-- Repository variable: `GREENLIGHT_EXPECT_TEXT` with a stable visible string from the QA homepage
-- Repository variable: `GREENLIGHT_EXPECT_SELECTOR` with a stable selector like `header`, `main`, or a login button selector
+- Repository variable: `GREENLIGHT_EXPECT_TEXT`
+- Repository variable: `GREENLIGHT_EXPECT_SELECTOR`
 
-2. Run the `Website QA Test` workflow from the Actions tab.
+Then run the `Website QA Test` workflow from the Actions tab.
 
-The workflow also runs daily on GitHub-hosted runners.
+The workflow also runs daily on GitHub-hosted runners and uploads `target/reports/` as artifacts.
 
 ## Output
 
-Results are saved in `outputs/`:
+Results are saved in `target/reports/<device>/`:
 
 - screenshot PNG
 - JSON report
 - Markdown summary
-- workflow artifacts for desktop and mobile runs
 
-## Emailing failure reports
+## Current behavior
 
-This repo is ready to produce artifacts in GitHub Actions. To auto-email failures, add one of these next:
-
-- Gmail connector in this chat so I can help route reports
-- SMTP secrets in GitHub Actions for automated mail delivery
+The Java test reports anti-bot blocks separately. If the site returns a bot-verification page, the report marks that explicitly instead of treating it as a generic homepage bug.
 
 ## Good next improvements
 
 - Add login flow support
 - Add multi-page crawl
 - Add form submission checks
-- Add accessibility checks with `axe-core`
-- Add pytest test suite for CI
+- Add accessibility checks
+- Add SMTP email notifications from GitHub Actions
