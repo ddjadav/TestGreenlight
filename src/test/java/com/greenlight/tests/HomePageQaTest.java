@@ -20,7 +20,7 @@ public class HomePageQaTest extends BaseTest {
         result.device = device;
 
         page.onConsoleMessage(msg -> {
-            if (msg.type() == ConsoleMessage.Type.ERROR) {
+           if ("error".equalsIgnoreCase(msg.type())) {
                 result.consoleErrors.add(msg.text());
             }
         });
