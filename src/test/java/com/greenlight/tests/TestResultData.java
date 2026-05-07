@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestResultData {
+    public String scenario;
     public String title;
     public String url;
     public String device;
