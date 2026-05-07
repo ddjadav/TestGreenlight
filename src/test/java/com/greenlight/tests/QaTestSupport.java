@@ -73,6 +73,15 @@ public class QaTestSupport {
         }
     }
 
+    public boolean hasVisibleAnySelector(String... selectors) {
+        for (String selector : selectors) {
+            if (hasVisibleSelector(selector)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean hasVisibleRoleLink(String textPattern) {
         try {
             Locator locator = page.getByRole(com.microsoft.playwright.options.AriaRole.LINK,
@@ -105,6 +114,23 @@ public class QaTestSupport {
             }
         }
         return null;
+    }
+
+    public boolean clickFirstVisible(String... selectors) {
+        Locator locator = firstVisibleLocator(selectors);
+        if (locator == null) {
+            return false;
+        }
+
+        locator.click();
+        page.waitForLoadState();
+        return true;
+    }
+
+    public boolean isProductRelatedUrl(String url) {
+        return url.contains("/product/")
+            || url.contains("/shop")
+            || url.contains("/product-category/");
     }
 
     public void writeAndAssert(TestResultData result, String fileStem) throws IOException {
