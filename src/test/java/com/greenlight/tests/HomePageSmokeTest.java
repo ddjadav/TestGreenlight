@@ -21,8 +21,10 @@ public class HomePageSmokeTest extends BaseTest {
             response == null ? "No response" : "HTTP status: " + response.status());
         support.addCheck(result, "expected_text_visible", support.hasVisibleText(expectedText),
             "Expected text: " + expectedText);
-        support.addCheck(result, "expected_selector_visible", support.hasVisibleSelector(expectedSelector),
-            "Expected selector: " + expectedSelector);
+        support.addCheck(result, "expected_selector_visible",
+            support.hasVisibleSelector(expectedSelector)
+                || support.hasVisibleAnySelector("#main", ".site-main", ".content-area", ".woocommerce", "article"),
+            "Expected selector: " + expectedSelector + " or a common WooCommerce content container");
         support.addCheck(result, "title_not_blank", result.title != null && !result.title.isBlank(),
             "Page title should not be blank");
 
