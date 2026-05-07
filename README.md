@@ -11,8 +11,8 @@ A Java Playwright project for testing `qa.greenlightmedicare.co.uk` functionalit
 The test suite:
 
 1. Opens the QA site in Playwright
-2. Checks page load, expected text, and expected selectors
-3. Captures a screenshot
+2. Runs smoke and E2E-style browser scenarios
+3. Captures screenshots
 4. Detects bot-verification blocks explicitly
 5. Saves JSON and Markdown reports under `target/reports/`
 
@@ -70,6 +70,13 @@ Results are saved in `target/reports/<device>/`:
 - screenshot PNG
 - JSON report
 - Markdown summary
+
+## Included tests
+
+- `HomePageSmokeTest`: homepage load, title, expected text, and base selector checks
+- `PrimaryNavigationSmokeTest`: header/navigation, shop/categories, and cart/checkout entry-point checks
+- `ProductDiscoveryE2ETest`: clicks through from homepage into a product/shop/category page
+- `CartJourneyE2ETest`: attempts a product-detail to add-to-cart to cart/checkout journey
 
 ## Current behavior
 
