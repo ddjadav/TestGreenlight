@@ -20,6 +20,7 @@ public final class TestReportWriter {
     private static String toMarkdown(TestResultData result) {
         StringBuilder sb = new StringBuilder();
         sb.append("# Website Test Summary\n\n");
+        sb.append("- Scenario: ").append(result.scenario).append("\n");
         sb.append("- URL: ").append(result.url).append("\n");
         sb.append("- Device: ").append(result.device).append("\n");
         sb.append("- Title: ").append(result.title).append("\n");
@@ -60,6 +61,7 @@ public final class TestReportWriter {
     private static String toJson(TestResultData result) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
+        appendJsonField(sb, 1, "scenario", result.scenario, true);
         appendJsonField(sb, 1, "title", result.title, true);
         appendJsonField(sb, 1, "url", result.url, true);
         appendJsonField(sb, 1, "device", result.device, true);
