@@ -17,13 +17,24 @@ public class CartJourneyE2ETest extends BaseTest {
         Response response = page.navigate(baseUrl);
         page.waitForLoadState();
 
+        boolean reachedCatalog = false;
         boolean reachedProduct = false;
         boolean clickedCartAction = false;
         boolean reachedCartLikePage = false;
 
+        reachedCatalog = support.clickFirstVisible(
+            "a[href*='/shop/']",
+            "a[href*='/product-category/']",
+            "nav a[href*='/shop']",
+            "nav a[href*='/product-category/']",
+            "a:has-text('Shop')",
+            "a:has-text('Categories')"
+        );
+
         Locator productLink = support.firstVisibleLocator(
             "a[href*='/product/']",
-            ".product a"
+            ".product a",
+            ".woocommerce-loop-product__title"
         );
         if (productLink != null) {
             productLink.click();
@@ -61,6 +72,8 @@ public class CartJourneyE2ETest extends BaseTest {
         support.finalizeResult(result, response, "cart-journey-e2e.png");
         support.addCheck(result, "page_loaded", response != null && response.ok(),
             response == null ? "No response" : "HTTP status: " + response.status());
+        support.addCheck(result, "reached_catalog_or_shop_page", reachedCatalog,
+            "Expected to leave the homepage via a shop or category entry point");
         support.addCheck(result, "reached_product_page", reachedProduct,
             "Expected to open at least one product detail page");
         support.addCheck(result, "clicked_add_to_cart_or_equivalent", clickedCartAction,
