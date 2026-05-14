@@ -36,12 +36,11 @@ public class CartJourneyE2ETest extends BaseTest {
 
          boolean openedProductTarget = support.navigateToFirstVisibleTarget(
             "a[href*='/product/']",
-            "a[href*='/products/']",
             ".product a",
             ".woocommerce-loop-product__title"
         );
         if (openedProductTarget) {
-            reachedProduct = page.url().contains("/product/") || page.url().contains("/products/");
+            reachedProduct = page.url().contains("/product/");
 
             Locator cartAction = support.firstVisibleLocator(
                 "button[name='add-to-cart']",
