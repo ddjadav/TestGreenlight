@@ -1,6 +1,5 @@
 package com.greenlight.tests;
 
-import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Response;
 import org.junit.jupiter.api.Test;
 
@@ -21,27 +20,28 @@ public class ProductDiscoveryE2ETest extends BaseTest {
         boolean reachedProductRelatedPage = false;
         boolean foundDiscoveryContent = false;
 
-        Locator entryPoint = support.firstVisibleLocator(
+         clickedHomeEntry = support.navigateToFirstVisibleTarget(
             "a[href*='/product/']",
             "a[href*='/shop/']",
+            "a[href*='/products/']",
             "a[href*='/product-category/']",
             ".product a",
             ".woocommerce-loop-product__title",
             "nav a[href*='/shop']",
+            "nav a[href*='/products/']",
             "nav a[href*='/product-category/']",
+            "a:has-text('Products')",
             "a:has-text('Shop')",
             "a:has-text('Categories')"
         );
-        if (entryPoint != null) {
-            entryPoint.click();
-            page.waitForLoadState();
-            clickedHomeEntry = true;
+        if (clickedHomeEntry) {
             reachedProductRelatedPage = support.isProductRelatedUrl(page.url());
         }
 
         if (reachedProductRelatedPage) {
             foundDiscoveryContent = support.hasVisibleAnySelector(
                 "a[href*='/product/']",
+                "a[href*='/products/']",
                 ".product",
                 ".products",
                 ".woocommerce-loop-product__title",
