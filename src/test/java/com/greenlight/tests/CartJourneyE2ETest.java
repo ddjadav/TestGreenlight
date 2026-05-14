@@ -35,12 +35,24 @@ public class CartJourneyE2ETest extends BaseTest {
         );
 
          boolean openedProductTarget = support.navigateToFirstVisibleTarget(
-            "a[href*='/product/']",
-            ".product a",
-            ".woocommerce-loop-product__title"
-        );
+    "a[href*='/product/']",
+    "a[href*='/products/']",
+    ".products a",
+    ".product a",
+    ".woocommerce-loop-product__title"
+);
         if (openedProductTarget) {
-            reachedProduct = page.url().contains("/product/");
+            reachedProduct =
+        support.hasVisibleAnySelector(
+            "form.cart",
+            ".single_add_to_cart_button",
+            "input.qty",
+            ".product.type-product",
+            ".single-product"
+        )
+        || support.hasVisibleRoleButton("add to basket|add to cart|select options")
+        || support.hasVisibleText("Add to basket")
+        || support.hasVisibleText("Select options");
 
             Locator cartAction = support.firstVisibleLocator(
                 "button[name='add-to-cart']",
