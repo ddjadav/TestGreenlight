@@ -20,6 +20,7 @@ public class CartJourneyE2ETest extends BaseTest {
         boolean reachedCatalog = false;
         boolean reachedProduct = false;
         boolean clickedCartAction = false;
+        boolean sawAddToCartSuccess = false;
         boolean reachedCartLikePage = false;
 
         reachedCatalog = support.navigateToFirstVisibleTarget(
@@ -71,34 +72,32 @@ public class CartJourneyE2ETest extends BaseTest {
                     clickedCartAction = true;
                 }
 
-                boolean cartSuccessOnPage =
-                    support.hasVisibleText("View cart")
+                sawAddToCartSuccess =
+                    support.hasVisibleText("View basket")
+                        || support.hasVisibleText("View cart")
                         || support.hasVisibleText("has been added to your basket")
                         || support.hasVisibleText("has been added to your cart")
                         || support.hasVisibleAnySelector(
-                            "a[href*='/cart']",
-                            ".added_to_cart",
                             ".woocommerce-message",
-                            ".widget_shopping_cart",
-                            ".cart-contents"
+                            ".added_to_cart",
+                            "a[href*='/cart']"
                         );
 
-                Locator cartLink = support.firstVisibleLocator(
-                    "a[href*='/cart']",
-                    "a[href*='/checkout']",
+                Locator viewBasketLink = support.firstVisibleLocator(
+                    ".woocommerce-message a",
+                    "a:has-text('View basket')",
                     "a:has-text('View cart')",
-                    "a:has-text('Checkout')"
+                    "a[href*='/cart']"
                 );
 
-                if (cartLink != null) {
-                    cartLink.click();
+                if (viewBasketLink != null) {
+                    viewBasketLink.click();
                     page.waitForLoadState();
                 }
 
                 reachedCartLikePage =
                     page.url().contains("/cart")
-                        || page.url().contains("/checkout")
-                        || cartSuccessOnPage;
+                        || page.url().contains("/checkout");
             }
         }
 
@@ -111,8 +110,10 @@ public class CartJourneyE2ETest extends BaseTest {
             "Expected to open at least one product detail page");
         support.addCheck(result, "clicked_add_to_cart_or_equivalent", clickedCartAction,
             "Expected an add-to-cart style action on the product page");
+        support.addCheck(result, "saw_add_to_cart_success_message", sawAddToCartSuccess,
+            "Expected a WooCommerce success message with View basket/View cart");
         support.addCheck(result, "reached_cart_or_checkout", reachedCartLikePage,
-            "Expected to reach cart/checkout or see a successful add-to-cart state, but current URL is: " + page.url());
+            "Expected to reach cart or checkout after clicking View basket/View cart, but current URL is: " + page.url());
 
         support.writeAndAssert(result, "cart-journey-e2e");
     }
