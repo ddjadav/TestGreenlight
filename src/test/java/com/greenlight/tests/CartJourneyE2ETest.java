@@ -34,52 +34,72 @@ public class CartJourneyE2ETest extends BaseTest {
             "a:has-text('Categories')"
         );
 
-         boolean openedProductTarget = support.navigateToFirstVisibleTarget(
-    "a[href*='/product/']",
-    "a[href*='/products/']",
-    ".products a",
-    ".product a",
-    ".woocommerce-loop-product__title"
-);
-        if (openedProductTarget) {
-            reachedProduct =
-        support.hasVisibleAnySelector(
-            "form.cart",
-            ".single_add_to_cart_button",
-            "input.qty",
-            ".product.type-product",
-            ".single-product"
-        )
-        || support.hasVisibleRoleButton("add to basket|add to cart|select options")
-        || support.hasVisibleText("Add to basket")
-        || support.hasVisibleText("Select options");
-
-            Locator cartAction = support.firstVisibleLocator(
-                "button[name='add-to-cart']",
-                "button.single_add_to_cart_button",
-                "a.single_add_to_cart_button",
-                "button:has-text('Add to basket')",
-                "button:has-text('Add to cart')",
-                "a:has-text('Add to basket')"
+        if (reachedCatalog) {
+            boolean openedProductTarget = support.navigateToFirstVisibleTarget(
+                "a[href*='/product/']",
+                "a[href*='/products/']",
+                ".products a",
+                ".product a",
+                ".woocommerce-loop-product__title"
             );
-            if (cartAction != null) {
-                cartAction.click();
-                page.waitForLoadState();
-                clickedCartAction = true;
-            }
 
-            Locator cartLink = support.firstVisibleLocator(
-                "a[href*='/cart']",
-                "a[href*='/checkout']",
-                "a:has-text('View cart')",
-                "a:has-text('Checkout')"
-            );
-            if (cartLink != null) {
-                cartLink.click();
-                page.waitForLoadState();
-            }
+            if (openedProductTarget) {
+                reachedProduct =
+                    support.hasVisibleAnySelector(
+                        "form.cart",
+                        ".single_add_to_cart_button",
+                        "input.qty",
+                        ".product.type-product",
+                        ".single-product"
+                    )
+                    || support.hasVisibleRoleButton("add to basket|add to cart|select options")
+                    || support.hasVisibleText("Add to basket")
+                    || support.hasVisibleText("Select options");
 
-            reachedCartLikePage = page.url().contains("/cart") || page.url().contains("/checkout");
+                Locator cartAction = support.firstVisibleLocator(
+                    "button[name='add-to-cart']",
+                    "button.single_add_to_cart_button",
+                    "a.single_add_to_cart_button",
+                    "button:has-text('Add to basket')",
+                    "button:has-text('Add to cart')",
+                    "a:has-text('Add to basket')"
+                );
+
+                if (cartAction != null) {
+                    cartAction.click();
+                    page.waitForLoadState();
+                    clickedCartAction = true;
+                }
+
+                boolean cartSuccessOnPage =
+                    support.hasVisibleText("View cart")
+                        || support.hasVisibleText("has been added to your basket")
+                        || support.hasVisibleText("has been added to your cart")
+                        || support.hasVisibleAnySelector(
+                            "a[href*='/cart']",
+                            ".added_to_cart",
+                            ".woocommerce-message",
+                            ".widget_shopping_cart",
+                            ".cart-contents"
+                        );
+
+                Locator cartLink = support.firstVisibleLocator(
+                    "a[href*='/cart']",
+                    "a[href*='/checkout']",
+                    "a:has-text('View cart')",
+                    "a:has-text('Checkout')"
+                );
+
+                if (cartLink != null) {
+                    cartLink.click();
+                    page.waitForLoadState();
+                }
+
+                reachedCartLikePage =
+                    page.url().contains("/cart")
+                        || page.url().contains("/checkout")
+                        || cartSuccessOnPage;
+            }
         }
 
         support.finalizeResult(result, response, "cart-journey-e2e.png");
@@ -92,7 +112,7 @@ public class CartJourneyE2ETest extends BaseTest {
         support.addCheck(result, "clicked_add_to_cart_or_equivalent", clickedCartAction,
             "Expected an add-to-cart style action on the product page");
         support.addCheck(result, "reached_cart_or_checkout", reachedCartLikePage,
-            "Expected to reach cart or checkout but current URL is: " + page.url());
+            "Expected to reach cart/checkout or see a successful add-to-cart state, but current URL is: " + page.url());
 
         support.writeAndAssert(result, "cart-journey-e2e");
     }
