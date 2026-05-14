@@ -22,24 +22,26 @@ public class CartJourneyE2ETest extends BaseTest {
         boolean clickedCartAction = false;
         boolean reachedCartLikePage = false;
 
-        reachedCatalog = support.clickFirstVisible(
+        reachedCatalog = support.navigateToFirstVisibleTarget(
             "a[href*='/shop/']",
+            "a[href*='/products/']",
             "a[href*='/product-category/']",
             "nav a[href*='/shop']",
+            "nav a[href*='/products/']",
             "nav a[href*='/product-category/']",
+            "a:has-text('Products')",
             "a:has-text('Shop')",
             "a:has-text('Categories')"
         );
 
-        Locator productLink = support.firstVisibleLocator(
+         boolean openedProductTarget = support.navigateToFirstVisibleTarget(
             "a[href*='/product/']",
+            "a[href*='/products/']",
             ".product a",
             ".woocommerce-loop-product__title"
         );
-        if (productLink != null) {
-            productLink.click();
-            page.waitForLoadState();
-            reachedProduct = true;
+        if (openedProductTarget) {
+            reachedProduct = page.url().contains("/product/") || page.url().contains("/products/");
 
             Locator cartAction = support.firstVisibleLocator(
                 "button[name='add-to-cart']",
