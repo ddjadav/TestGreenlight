@@ -127,10 +127,33 @@ public class QaTestSupport {
         return true;
     }
 
+     public boolean navigateToFirstVisibleTarget(String... selectors) {
+        Locator locator = firstVisibleLocator(selectors);
+        if (locator == null) {
+            return false;
+        }
+
+        String href = extractHref(locator);
+        if (href == null || href.isBlank() || href.startsWith("#")) {
+            try {
+                locator.click();
+                page.waitForLoadState();
+                return true;
+            } catch (RuntimeException ignored) {
+                return false;
+            }
+        }
+
+        page.navigate(href);
+        page.waitForLoadState();
+        return true;
+    }
+    
     public boolean isProductRelatedUrl(String url) {
         return url.contains("/product/")
             || url.contains("/shop")
-            || url.contains("/product-category/");
+            || url.contains("/product-category/")
+            || url.contains("/products/");
     }
 
     public void writeAndAssert(TestResultData result, String fileStem) throws IOException {
@@ -169,3 +192,22 @@ public class QaTestSupport {
         return text.length() <= 5000 ? text : text.substring(0, 5000);
     }
 }
+private String extractHref(Locator locator) {
+        try {
+            String href = locator.getAttribute("href");
+            if (href != null && !href.isBlank()) {
+                return href;
+            }
+        } catch (RuntimeException ignored) {
+            // Fall through to closest anchor lookup.
+        }
+
+        try {
+            Object value = locator.evaluate(
+                "node => node.closest('a') ? node.closest('a').href : null"
+            );
+            return value == null ? null : value.toString();
+        } catch (RuntimeException ignored) {
+            return null;
+        }
+    }
